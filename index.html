@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>WIZ-TERMINAL v1.0</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        :root {
+            --neon-green: #33ff33;
+            --dark-green: #003300;
+            --terminal-bg: #050505;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            background-color: var(--terminal-bg);
+            color: var(--neon-green);
+            font-family: 'Courier New', Courier, monospace;
+            height: 100vh;
+            overflow: hidden;
+            text-transform: uppercase;
+        }
+
+        /* CRT Scanline Effect */
+        body::before {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 10;
+            background-size: 100% 4px, 3px 100%;
+            pointer-events: none;
+        }
+
+        /* Flicker */
+        @keyframes flicker {
+            0% { opacity: 0.97; }
+            5% { opacity: 0.95; }
+            10% { opacity: 0.9; }
+            15% { opacity: 0.93; }
+            100% { opacity: 1; }
+        }
+
+        .screen {
+            padding: 20px;
+            height: 100%;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            animation: flicker 0.1s infinite;
+            border: 10px solid #111;
+        }
+
+        .header {
+            border-bottom: 2px solid var(--neon-green);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .output-line {
+            margin-bottom: 8px;
+            line-height: 1.2;
+            word-break: break-all;
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 10px;
+            height: 18px;
+            background-color: var(--neon-green);
+            animation: blink 0.8s infinite;
+            vertical-align: middle;
+            margin-left: 5px;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        .links-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .link-item {
+            border: 1px solid var(--neon-green);
+            padding: 10px;
+            text-align: center;
+            text-decoration: none;
+            color: var(--neon-green);
+            font-size: 14px;
+        }
+
+        .link-item:active {
+            background-color: var(--neon-green);
+            color: var(--dark-green);
+        }
+
+        .stats {
+            margin-top: auto;
+            border-top: 2px solid var(--neon-green);
+            padding-top: 10px;
+            font-size: 12px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .glitch {
+            text-shadow: 2px 0 red, -2px 0 blue;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        const Terminal = () => {
+            const [time, setTime] = useState(new Date().toLocaleTimeString());
+            const [bootLines, setBootLines] = useState([]);
+            const lines = [
+                "> WIZ-OS BOOTING...",
+                "> KERNEL 0.4.2 LOADED",
+                "> CONNECTING TO THE VOID...",
+                "> SECURE CHANNEL ESTABLISHED",
+                "> WELCOME, USER J THREE"
+            ];
+
+            useEffect(() => {
+                const timer = setInterval(() => {
+                    setTime(new Date().toLocaleTimeString());
+                }, 1000);
+
+                let i = 0;
+                const bootInterval = setInterval(() => {
+                    if (i < lines.length) {
+                        setBootLines(prev => [...prev, lines[i]]);
+                        i++;
+                    } else {
+                        clearInterval(bootInterval);
+                    }
+                }, 400);
+
+                return () => {
+                    clearInterval(timer);
+                    clearInterval(bootInterval);
+                };
+            }, []);
+
+            return (
+                <div className="screen">
+                    <div className="header">
+                        [ WIZ-TERMINAL v1.0 ]<br/>
+                        STATION: BIG-PI-DAWG<br/>
+                        DATE: {new Date().toLocaleDateString()}<br/>
+                        TIME: {time}
+                    </div>
+
+                    <div className="content">
+                        {bootLines.map((line, idx) => (
+                            <div key={idx} className="output-line">{line}</div>
+                        ))}
+                        
+                        <div className="output-line" style={{marginTop: '20px', color: '#fff'}}>
+                            SYSTEM STATUS: <span className="glitch">OPTIMAL</span>
+                        </div>
+                        
+                        <div className="output-line" style={{marginTop: '10px'}}>
+                            QUICK ACCESS PROTOCOLS:
+                        </div>
+
+                        <div className="links-grid">
+                            <a href="https://jump-your-fico-crm-official-25406993603.us-west1.run.app/" className="link-item">
+                                [ CRM PORTAL ]
+                            </a>
+                            <a href="https://www.facebook.com/jumpyourfico/" className="link-item">
+                                [ FB PAGE ]
+                            </a>
+                            <a href="https://github.com/bigpidawg" className="link-item">
+                                [ GITHUB ]
+                            </a>
+                            <a href="#" onClick={() => alert('DICE LOADED')} className="link-item">
+                                [ DICE GAME ]
+                            </a>
+                        </div>
+                    </div>
+
+                    <div className="stats">
+                        <span>CPU: 42%</span>
+                        <span>MEM: 12.4GB/32GB</span>
+                        <span>NET: ENCRYPTED</span>
+                    </div>
+                    
+                    <div style={{marginTop: '10px'}}>
+                        {">"} READY_ <span className="cursor"></span>
+                    </div>
+                </div>
+            );
+        };
+
+            ReactDOM.createRoot(document.getElementById('root')).render(<Terminal />);
+    </script>
+</body>
+</html>
