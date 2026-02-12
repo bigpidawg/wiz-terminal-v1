@@ -69,12 +69,15 @@
             margin-bottom: 10px;
         }
 
-        /* Visible scrollbar for retro feel + better mobile detection */
+        /* Hide scrollbar for Chrome, Safari and Opera */
         .scroll-container::-webkit-scrollbar {
-            width: 5px;
+            display: none;
         }
-        .scroll-container::-webkit-scrollbar-thumb {
-            background: var(--neon-green);
+
+        /* Hide scrollbar for IE, Edge and Firefox */
+        .scroll-container {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
         }
 
         .header {
