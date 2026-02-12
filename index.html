@@ -149,20 +149,39 @@
         const Terminal = () => {
             const [time, setTime] = useState(new Date().toLocaleTimeString());
             const [bootLines, setBootLines] = useState([]);
-            const lines = [
-                "> WIZ-OS BOOTING...",
-                "> KERNEL 0.4.2 LOADED",
-                "> CONNECTING TO THE VOID...",
-                "> SECURE CHANNEL ESTABLISHED",
-                "> WELCOME, USER J THREE"
-            ];
+            const [isAuthorized, setIsAuthorized] = useState(false);
+            const [input, setInput] = useState("");
+
+            const MASTER_KEY = "8584"; // You can change this to any 4-digit code
+
+            const handleAuth = (e) => {
+                e.preventDefault();
+                if (input === MASTER_KEY) {
+                    setIsAuthorized(true);
+                    sessionStorage.setItem('wiz_auth', 'true');
+                } else {
+                    alert("ACCESS DENIED: INVALID KEY");
+                    setInput("");
+                }
+            };
 
             useEffect(() => {
+                if (sessionStorage.getItem('wiz_auth') === 'true') {
+                    setIsAuthorized(true);
+                }
+
                 const timer = setInterval(() => {
                     setTime(new Date().toLocaleTimeString());
                 }, 1000);
 
                 let i = 0;
+                const lines = [
+                    "> WIZ-OS BOOTING...",
+                    "> KERNEL 0.4.2 LOADED",
+                    "> SECURE CHANNEL ESTABLISHED",
+                    "> WELCOME, USER J THREE"
+                ];
+
                 const bootInterval = setInterval(() => {
                     if (i < lines.length) {
                         setBootLines(prev => [...prev, lines[i]]);
@@ -177,6 +196,40 @@
                     clearInterval(bootInterval);
                 };
             }, []);
+
+            if (!isAuthorized) {
+                return (
+                    <div className="screen" style={{justifyContent: 'center', alignItems: 'center'}}>
+                        <div className="header" style={{border: 'none', textAlign: 'center'}}>
+                            [ SECURITY PROTOCOL ACTIVE ]<br/>
+                            ENTER ENCRYPTION KEY
+                        </div>
+                        <form onSubmit={handleAuth} style={{textAlign: 'center'}}>
+                            <input 
+                                type="password" 
+                                value={input}
+                                onChange={(e) => setInput(e.target.value)}
+                                autoFocus
+                                style={{
+                                    background: 'transparent',
+                                    border: '1px solid var(--neon-green)',
+                                    color: var(--neon-green),
+                                    padding: '10px',
+                                    textAlign: 'center',
+                                    fontSize: '20px',
+                                    fontFamily: 'inherit',
+                                    outline: 'none'
+                                }}
+                            />
+                            <div style={{marginTop: '20px'}}>
+                                <button type="submit" className="link-item" style={{cursor: 'pointer', width: '100px'}}>
+                                    [ AUTH ]
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                );
+            }
 
             return (
                 <div className="screen">
